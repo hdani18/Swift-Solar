@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,6 +11,8 @@
     <div style="width: 800px; height: 600px;">
         <canvas id="histogram"></canvas>
     </div>
+    <p>Event Name: {{ event_data.name }}</p>
+    <p>Event Date: {{ event_data.date }}</p>
     <script>
         var revisions_per_month = {{ revisions_per_month|safe }};
         var months = Object.keys(revisions_per_month);

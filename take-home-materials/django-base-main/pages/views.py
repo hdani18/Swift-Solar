@@ -1,19 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from pages import models
 import requests
 from django.conf import settings
 from datetime import datetime, timedelta
 
 def get_wiki_data(params):
-    """
-    Makes a request to the Wikipedia API.
-
-    Args:
-        params (dict): Parameters for the API request.
-
-    Returns:
-        dict: JSON response from the API.
-    """
+    
     URL = "https://en.wikipedia.org/w/api.php"
     session = requests.Session()
     response = session.get(url=URL, params=params)
@@ -46,19 +38,11 @@ def data_plot(titles, date):
                 timestamp = datetime.strptime(revision.get("timestamp"), '%Y-%m-%dT%H:%M:%SZ')
                 year_month = timestamp.strftime('%Y-%m')  
                 revisions_per_month[year_month] = revisions_per_month.get(year_month, 0) + 1
-        
-        # if not len(revisions_per_month):
-        #     return "No Data is Available for this request"
 
     return revisions_per_month
 
 def get_events():
-    """
-    Retrieves events from the database and formats them into dictionaries.
-    
-    Returns:
-        list: A list of dictionaries representing events.
-    """
+   
     events = models.Event.objects.all()
     event_dicts = []
     for event in events:
@@ -70,16 +54,34 @@ def get_events():
     return event_dicts
 
 def generate_histogram(request):
+    
     if request.method == 'POST':
         event_name = request.POST.get('event_name')
         titles = request.POST.get('titles')
-        title_list = titles.split(",")
-        obj = models.Event.objects.get(event_name = event_name)
-        date = obj.event_date   
+        if not titles:
+            events = get_events()
+            return render(request, 'pages/form.html', {'events': events, 'error_message': 'Please enter at least one title.'})
         
-        histogram_data = data_plot(title_list, date)
-        return render(request, 'pages/histogram.html', {'revisions_per_month': histogram_data})
-    print(settings.BASE_DIR)  
+        title_list = titles.split(",")
+        try:
+            event = models.Event.objects.get(event_name=event_name)
+        except models.Event.DoesNotExist:
+            event = None
+
+        if event:
+            event_data = {
+                'name': event.event_name,
+                'date': event.event_date.strftime('%Y-%m-%d')
+            }
+            date = event.event_date
+
+            histogram_data = data_plot(title_list, date)
+            
+            return render(request, 'pages/histogram.html', {
+                'event_data': event_data,
+                'revisions_per_month': histogram_data
+            })
+  
     events = get_events()  
     return render(request, 'pages/form.html', {'events': events})
 
