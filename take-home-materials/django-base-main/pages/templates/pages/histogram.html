@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Revision Histogram</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <a href="/">New Search</a>
+    <h1>Event Revision Histogram</h1>
+    <div style="width: 800px; height: 600px;">
+        <canvas id="histogram"></canvas>
+    </div>
+    <script>
+        var revisions_per_month = {{ revisions_per_month|safe }};
+        var months = Object.keys(revisions_per_month);
+        var counts = Object.values(revisions_per_month);
+    
+        if (Object.keys(revisions_per_month).length === 0 && revisions_per_month.constructor === Object) {
+            alert('No data available for this request.');
+            window.location = "/";
+        } else {
+            var ctx = document.getElementById('histogram').getContext('2d');
+            var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Revisions per Month',
+                        data: counts,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

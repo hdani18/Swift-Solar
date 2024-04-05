@@ -1,0 +1,26 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Event and Generate Histogram</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <h1>Select Event and Generate Histogram</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="event_name">Select an Event:</label>
+        <select name="event_name">
+            {% for event in events %}
+            <option value="{{ event.name }}">{{ event.name }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="titles">Enter Titles (Seprated by Comma):</label>
+        <input type="text" name="titles">
+        <br>
+        <button type="submit">Generate Histogram</button>
+    </form>
+</body>
+</html>
